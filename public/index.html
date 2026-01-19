@@ -1,133 +1,92 @@
 <!DOCTYPE html>
-<html>
+<html lang="my">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ah Mar Thaw Pro</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>အမှာတော် - Ah Mar Taw</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #ee4d2d; --bg: #f5f5f5; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; padding-bottom: 70px; }
-        .page { display: none; } .active { display: block; }
-        .mall-header { background: white; padding: 12px; display: flex; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 1000; }
-        .search-bar { background: #f0f0f0; flex: 1; border-radius: 20px; padding: 8px 15px; font-size: 14px; color: #888; }
-        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; }
-        .product-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .product-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #eee; }
-        .wallet-banner { background: linear-gradient(45deg, #ee4d2d, #ff7337); color: white; padding: 20px; margin: 15px; border-radius: 12px; }
-        .status-box { background: white; margin: 0 15px; padding: 15px; border-radius: 10px; display: flex; justify-content: space-around; text-align: center; font-size: 11px; }
-        .status-item { position: relative; flex: 1; }
-        .badge { position: absolute; top: -5px; right: 10px; background: var(--primary); color: white; border-radius: 50%; padding: 2px 6px; font-size: 9px; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #ddd; z-index: 1000; }
-        .nav-item { flex: 1; padding: 10px 0; text-align: center; font-size: 10px; color: #555; }
-        .nav-item.active { color: var(--primary); }
-        .login-section { background: white; padding: 20px; text-align: center; margin: 15px; border-radius: 12px; }
-        input { width: 80%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; text-align: center; font-size: 16px; }
-        .btn-login { background: var(--primary); color: white; border: none; padding: 10px 30px; border-radius: 5px; font-weight: bold; }
+        body { font-family: sans-serif; margin: 0; background-color: #f4f4f4; padding-bottom: 70px; }
+        
+        /* Header Search Bar */
+        .header { background: #fff; padding: 10px; position: sticky; top: 0; z-index: 100; }
+        .search-container { background: #eee; padding: 8px; border-radius: 20px; display: flex; align-items: center; }
+        .search-container input { border: none; background: transparent; margin-left: 10px; width: 100%; outline: none; }
+
+        /* Product Grid System */
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 10px; }
+        .product-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; }
+        .product-img { width: 100%; height: 160px; background: #ddd; object-fit: cover; }
+        .product-info { padding: 8px; }
+        .product-name { font-size: 14px; color: #333; margin: 5px 0; }
+        .product-price { color: #ee4d2d; font-weight: bold; font-size: 16px; }
+
+        /* Order Status Section */
+        .order-status { background: #fff; display: flex; justify-content: space-around; padding: 15px 0; margin-bottom: 10px; }
+        .status-item { text-align: center; color: #555; font-size: 12px; position: relative; }
+        .status-item i { font-size: 20px; margin-bottom: 5px; color: #ff5722; }
+        .badge { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; }
+        .nav-item { text-align: center; color: #777; text-decoration: none; font-size: 12px; }
+        .nav-item.active { color: #ff5722; }
+        .nav-item i { font-size: 20px; display: block; }
     </style>
 </head>
 <body>
-    <div id="home" class="page active">
-        <div class="mall-header"><div class="search-bar"><i class="fa fa-search"></i> ရှာဖွေပါ</div></div>
-        <div class="product-grid" id="pGrid"></div>
+
+    <div class="header">
+        <div class="search-container">
+            <i class="fa fa-search"></i>
+            <input type="text" placeholder="ရှာဖွေပါ">
+        </div>
     </div>
 
-    <div id="me" class="page">
-        <div id="loginArea" class="login-section">
-            <h3>ဖုန်းနံပါတ်ဖြင့် ဝင်ပါ</h3>
-            <input type="tel" id="loginPhone" placeholder="09xxxxxxxxx">
-            <br>
-            <button class="btn-login" onclick="login()">အကောင့်ဝင်မည်</button>
+    <div class="order-status">
+        <div class="status-item">
+            <i class="fa fa-wallet"></i><br>To Pay
+            <span class="badge">0</span>
         </div>
-        
-        <div id="userProfile" style="display:none;">
-            <div style="background:white; padding:20px; display:flex; align-items:center; gap:10px;">
-                <div style="width:50px; height:50px; background:#eee; border-radius:50%; display:flex; align-items:center; justify-content:center;"><i class="fa fa-user" style="font-size:25px; color:#ccc;"></i></div>
-                <div><b id="userPhDisplay">09xxxxxxx</b><br><small style="color:var(--primary)" onclick="logout()">Logout ထွက်မည်</small></div>
+        <div class="status-item">
+            <i class="fa fa-box"></i><br>To Ship
+            <span class="badge">2</span>
+        </div>
+        <div class="status-item">
+            <i class="fa fa-truck"></i><br>To Receive
+            <span class="badge">1</span>
+        </div>
+        <div class="status-item">
+            <i class="fa fa-star"></i><br>To Rate
+            <span class="badge">0</span>
+        </div>
+    </div>
+
+    <div class="product-grid">
+        <div class="product-card">
+            <div class="product-img"></div>
+            <div class="product-info">
+                <div class="product-name">ရေခဲမုန့်</div>
+                <div class="product-price">฿50</div>
             </div>
-            <div class="wallet-banner"><div>Wallet Balance</div><div style="font-size:24px; font-weight:bold; margin:5px 0;" id="bal">0.00 THB</div></div>
-            <div class="status-box">
-                <div class="status-item"><i class="fa fa-credit-card"></i><br>To Pay<span class="badge" id="b1">0</span></div>
-                <div class="status-item"><i class="fa fa-box"></i><br>To Ship<span class="badge" id="b2">0</span></div>
-                <div class="status-item"><i class="fa fa-truck"></i><br>To Receive<span class="badge" id="b3">0</span></div>
-                <div class="status-item"><i class="fa fa-star"></i><br>To Rate<span class="badge" id="b4">0</span></div>
+        </div>
+        <div class="product-card">
+            <div class="product-img"></div>
+            <div class="product-info">
+                <div class="product-name">Laptop</div>
+                <div class="product-price">฿3500</div>
             </div>
         </div>
     </div>
 
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="tab('home',this)"><i class="fa fa-home"></i><br>Home</div>
-        <div class="nav-item" onclick="tab('me',this)"><i class="fa fa-user"></i><br>Me</div>
+        <a href="#" class="nav-item active"><i class="fa fa-home"></i>Home</a>
+        <a href="#" class="nav-item"><i class="fa fa-shopping-bag"></i>Mall</a>
+        <a href="#" class="nav-item"><i class="fa fa-video"></i>Live</a>
+        <a href="#" class="nav-item"><i class="fa fa-bell"></i>Notifications</a>
+        <a href="#" class="nav-item"><i class="fa fa-user"></i>Me</a>
     </div>
 
-    <script>
-        const firebaseConfig = { apiKey: "AIzaSyD1KAKqhFVi8VTJRtoolzQKrEmXTnmZUsc", authDomain: "ah-mar-thaw.firebaseapp.com", projectId: "ah-mar-thaw", storageBucket: "ah-mar-thaw.firebasestorage.app", messagingSenderId: "976312084818", appId: "1:976312084818:web:2d0f7b922e17142768328b" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        function login() {
-            const p = document.getElementById('loginPhone').value;
-            if(p.length < 7) return alert("ဖုန်းနံပါတ် အမှန်ရိုက်ပါ");
-            localStorage.setItem('userPhone', p);
-            checkUser();
-        }
-
-        function logout() {
-            localStorage.removeItem('userPhone');
-            checkUser();
-        }
-
-        function checkUser() {
-            const phone = localStorage.getItem('userPhone');
-            if(phone) {
-                document.getElementById('loginArea').style.display = 'none';
-                document.getElementById('userProfile').style.display = 'block';
-                document.getElementById('userPhDisplay').innerText = phone;
-                loadW(phone);
-            } else {
-                document.getElementById('loginArea').style.display = 'block';
-                document.getElementById('userProfile').style.display = 'none';
-            }
-        }
-
-        function loadP() {
-            db.collection("products").onSnapshot(ss => {
-                let h = "";
-                ss.forEach(doc => {
-                    const p = doc.data();
-                    h += `<div class="product-card">
-                        <img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/150'">
-                        <div style="padding:10px;">
-                            <div style="font-size:12px;height:32px;overflow:hidden;">${p.name}</div>
-                            <div style="color:var(--primary);font-weight:bold">฿${p.price}</div>
-                        </div>
-                    </div>`;
-                });
-                document.getElementById('pGrid').innerHTML = h;
-            });
-        }
-
-        function loadW(phone) {
-            db.collection("wallets").doc(phone).onSnapshot(d => { if(d.exists) document.getElementById('bal').innerText = d.data().balance.toFixed(2) + " THB"; });
-            db.collection("orders").where("phone", "==", phone).onSnapshot(ss => {
-                let c = {"To Pay":0, "To Ship":0, "To Receive":0, "To Rate":0};
-                ss.forEach(d => { if(c[d.data().status] !== undefined) c[d.data().status]++; });
-                document.getElementById('b1').innerText = c["To Pay"];
-                document.getElementById('b2').innerText = c["To Ship"];
-                document.getElementById('b3').innerText = c["To Receive"];
-                document.getElementById('b4').innerText = c["To Rate"];
-            });
-        }
-
-        function tab(id, el) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-            if(id === 'me') checkUser();
-        }
-        window.onload = () => { loadP(); checkUser(); };
-    </script>
 </body>
 </html>
+
