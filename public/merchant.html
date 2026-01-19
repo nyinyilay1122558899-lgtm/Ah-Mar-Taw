@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ဆိုင်ရှင်များအတွက် - အမှာတော်</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
+        .form-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .btn { background: #d32f2f; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="form-card">
+        <h2>🏪 ဆိုင်အသစ်ဖွင့်ရန်</h2>
+        <input type="text" id="shopName" placeholder="ဆိုင်နာမည်">
+        <input type="text" id="ownerName" placeholder="ပိုင်ရှင်နာမည်">
+        <input type="tel" id="phone" placeholder="ဖုန်းနံပါတ် (ထိုင်း/မြန်မာ)">
+        <select id="category">
+            <option value="food">စားသောက်ကုန်</option>
+            <option value="book">စာအုပ်များ</option>
+            <option value="cloth">အဝတ်အထည်</option>
+        </select>
+        <button class="btn" onclick="registerShop()">စတင်ဖွင့်လှစ်မည်</button>
+    </div>
+
+    <script>
+        function registerShop() {
+            alert('ဒေတာများကို သိမ်းဆည်းရန် Firebase Firestore နှင့် ချိတ်ဆက်ရန် လိုအပ်ပါသေးသည်။');
+        }
+    </script>
+</body>
+</html>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // Firebase ကို အလုပ်ပေးခြင်း (Configuration)
+  // မှတ်ချက် - ဒီနေရာမှာ သင့် Firebase Console ထဲက Config ကုဒ်တွေ နောက်ပိုင်း ထည့်ရပါမယ်
+  
+  function registerShop() {
+    const shopName = document.getElementById('shopName').value;
+    const phone = document.getElementById('phone').value;
+
+    if (shopName === "" || phone === "") {
+      alert("အချက်အလက်များကို ပြည့်စုံစွာ ဖြည့်ပေးပါခင်ဗျာ။");
+      return;
+    }
+
+    // စမ်းသပ်ရန် Alert ပြခြင်း
+    alert(shopName + " ဆိုင်ကို အမှာတော် App မှာ မှတ်ပုံတင်ရန် တောင်းဆိုမှု ရောက်ရှိလာပါပြီ။");
+    
+    // ပင်မစာမျက်နှာသို့ ပြန်သွားရန်
+    window.location.href = "index.html";
+  }
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // Firebase ကို အလုပ်ပေးခြင်း (Configuration)
+  // မှတ်ချက် - ဒီနေရာမှာ သင့် Firebase Console ထဲက Config ကုဒ်တွေ နောက်ပိုင်း ထည့်ရပါမယ်
+  
+  function registerShop() {
+    const shopName = document.getElementById('shopName').value;
+    const phone = document.getElementById('phone').value;
+
+    if (shopName === "" || phone === "") {
+      alert("အချက်အလက်များကို ပြည့်စုံစွာ ဖြည့်ပေးပါခင်ဗျာ။");
+      return;
+    }
+
+    // စမ်းသပ်ရန် Alert ပြခြင်း
+    alert(shopName + " ဆိုင်ကို အမှာတော် App မှာ မှတ်ပုံတင်ရန် တောင်းဆိုမှု ရောက်ရှိလာပါပြီ။");
+    
+    // ပင်မစာမျက်နှာသို့ ပြန်သွားရန်
+    window.location.href = "index.html";
+  }
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script>
+  // Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyD1KAKqhFVi8VTJRtoolzQKrEmXTnmZUsc",
+    authDomain: "ah-mar-thaw.firebaseapp.com",
+    projectId: "ah-mar-thaw",
+    storageBucket: "ah-mar-thaw.appspot.com",
+    messagingSenderId: "123456789", // ဒီအတိုင်းထားပါ
+    appId: "1:123456789:web:abc123" // ဒီအတိုင်းထားပါ
+  };
+  // Firebase ကို စတင်အသက်သွင်းခြင်း
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  const db = firebase.firestore();
+
+  function registerShop() {
+    const shopName = document.getElementById('shopName').value;
+    const ownerName = document.getElementById('ownerName').value;
+    const phone = document.getElementById('phone').value;
+    const category = document.getElementById('category').value;
+
+    if (!shopName || !phone) {
+      alert("ဆိုင်နာမည်နှင့် ဖုန်းနံပါတ် ဖြည့်ပေးပါဗျာ။");
+      return;
+    }
+
+    db.collection("merchants").add({
+      shopName: shopName,
+      ownerName: ownerName,
+      phone: phone,
+      category: category,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+      alert(shopName + " ဆိုင်ကို အောင်မြင်စွာ စာရင်းသွင်းပြီးပါပြီ။");
+      window.location.href = "index.html";
+    })
+    .catch((error) => {
+      alert("အမှားတစ်ခု ရှိနေပါသည်- " + error.message);
+    });
+  }
+</script>
+
+
+ 
+
+
+
+

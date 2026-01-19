@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status - အမှာတော်</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; text-align: center; }
+        .box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        input { width: 80%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        button { background: #2e7d32; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .status-result { margin-top: 20px; padding: 15px; border-radius: 10px; display: none; background: #e8f5e9; border: 1px solid #2e7d32; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h3>🔍 အော်ဒါအခြေအနေစစ်မည်</h3>
+    <p>မှာယူစဉ်က အသုံးပြုခဲ့သော ဖုန်းနံပါတ်ကို ရိုက်ထည့်ပါ</p>
+    <input type="tel" id="phoneInput" placeholder="09xxxxxxxxx">
+    <button onclick="checkStatus()">စစ်ဆေးမည်</button>
+
+    <div id="resultBox" class="status-result">
+        <h4 id="prodName"></h4>
+        <p>အခြေအနေ: <b id="orderStat" style="color: #ef6c00;"></b></p>
+        <p id="timeInfo" style="font-size: 12px; color: #666;"></p>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyD1KAKqhFVi8VTJRtoolzQKrEmXTnmZUsc",
+        authDomain: "ah-mar-thaw.firebaseapp.com",
+        projectId: "ah-mar-thaw",
+        storageBucket: "ah-mar-thaw.appspot.com",
+        messagingSenderId: "33857508316",
+        appId: "1:33857508316:web:865529f7f9859f7c07b469"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function checkStatus() {
+        const phone = document.getElementById('phoneInput').value;
+        if(!phone) return alert("ဖုန်းနံပါတ်ရိုက်ထည့်ပါ");
+
+        db.collection("orders").where("customerPhone", "==", phone)
+          .orderBy("orderTime", "desc").limit(1).get().then((querySnapshot) => {
+            if (querySnapshot.empty) {
+                alert("ဤဖုန်းနံပါတ်ဖြင့် မှာယူထားသော အော်ဒါမရှိပါ။");
+                return;
+            }
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                document.getElementById('resultBox').style.display = "block";
+                document.getElementById('prodName').innerText = "📦 " + data.product;
+                document.getElementById('orderStat').innerText = data.status || "လက်ခံရရှိပြီး (Pending)";
+                document.getElementById('timeInfo').innerText = "မှာယူသည့်အချိန်: " + new Date(data.orderTime).toLocaleString();
+            });
+        }).catch(err => {
+            console.log(err);
+            alert("စစ်ဆေးရခြင်း အဆင်မပြေပါ။ ခဏနေမှ ထပ်စမ်းကြည့်ပါ။");
+        });
+    }
+</script>
+</body>
+</html>
+

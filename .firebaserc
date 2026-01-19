@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "ah-mar-thaw"
+  },
+  "targets": {
+    "ah-mar-thaw": {
+      "hosting": {
+        "main": [
+          "ah-mar-thaw"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

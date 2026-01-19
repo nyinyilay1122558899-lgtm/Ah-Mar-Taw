@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rider Registration</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>🚴 Rider စာရင်းသွင်းရန်</h2>
+    <input type="text" id="riderName" placeholder="Rider နာမည်">
+    <input type="tel" id="riderPhone" placeholder="ဖုန်းနံပါတ်">
+    <button class="btn" onclick="registerRider()">စာရင်းသွင်းမည်</button>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD1KAKqhFVi8VTJRtoolzQKrEmXTnmZUsc",
+      authDomain: "ah-mar-thaw.firebaseapp.com",
+      projectId: "ah-mar-thaw",
+      storageBucket: "ah-mar-thaw.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abc123"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
+    function registerRider() {
+      const name = document.getElementById('riderName').value;
+      const phone = document.getElementById('riderPhone').value;
+
+      if (!name || !phone) {
+        alert("အချက်အလက် အကုန်ဖြည့်ပါဗျာ။");
+        return;
+      }
+
+      db.collection("riders").add({
+        riderName: name,
+        phone: phone,
+        status: "active",
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(() => {
+        alert("Rider " + name + " စာရင်းသွင်းမှု အောင်မြင်ပါသည်!");
+        window.location.href = "index.html";
+      })
+      .catch((error) => {
+        alert("အမှားဖြစ်သွားပါသည်- " + error.message);
+      });
+    }
+  </script>
+</body>
+</html>

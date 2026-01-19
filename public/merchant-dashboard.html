@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merchant Dashboard - Ah Mhar Thaw</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; padding: 15px; text-align: center; margin: 0; }
+        .header { background: #1a237e; color: white; padding: 20px; border-radius: 0 0 20px 20px; margin-bottom: 20px; }
+        .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: left; }
+        .sales-amount { font-size: 28px; font-weight: bold; color: #1a237e; margin: 10px 0; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-withdraw { background: #2e7d32; color: white; }
+        .btn-save { background: #1a237e; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2 style="margin:0;">🏦 Merchant Wallet</h2>
+    </div>
+
+    <div class="card">
+        <p style="margin:0; color:#666; font-size: 14px;">စုစုပေါင်း ရောင်းရငွေ (Net Sales)</p>
+        <div id="totalSales" class="sales-amount">0 THB</div>
+        <p style="font-size:11px; color:#d32f2f;">* App Commission 10% နှုတ်ပြီးမှ ထုတ်ယူနိုင်ပါမည်။</p>
+        <button class="btn-withdraw" onclick="requestWithdraw()">💸 ပိုက်ဆံထုတ်ရန် တောင်းဆိုမည်</button>
+    </div>
+
+    <div class="card">
+        <h3 style="margin-top:0; color:#1a237e;">🏦 ထိုင်းဘဏ်အချက်အလက်</h3>
+        <select id="bankName">
+            <option value="K-Bank (Kasikorn)">K-Bank (Kasikorn)</option>
+            <option value="SCB (Siam Commercial)">SCB (Siam Commercial)</option>
+            <option value="Bangkok Bank">Bangkok Bank</option>
+            <option value="Krungthai Bank">Krungthai Bank</option>
+        </select>
+        <input type="text" id="bankAccName" placeholder="အကောင့်အမည် (Account Name)">
+        <input type="number" id="bankAccNo" placeholder="အကောင့်နံပါတ် (Account Number)">
+        <button class="btn-save" onclick="saveBankInfo()">ဘဏ်အကောင့် သိမ်းဆည်းမည်</button>
+    </div>
+
+    <script>
+        const config = { apiKey: "AIzaSyD1KAKqhFVi8VTJRtoolzQKrEmXTnmZUsc", authDomain: "ah-mar-thaw.firebaseapp.com", projectId: "ah-mar-thaw", storageBucket: "ah-mar-thaw.appspot.com", messagingSenderId: "33857508316", appId: "1:33857508316:web:865529f7f9859f7c07b469" };
+        firebase.initializeApp(config);
+        const db = firebase.firestore();
+
+        // ရောင်းရငွေကို တွက်ချက်ခြင်း (NaN Error ကိုပါ ဖြေရှင်းထားသည်)
+        db.collection("orders").onSnapshot(snapshot => {
+            let total = 0;
+            snapshot.forEach(doc => { 
+                let price = parseInt(doc.data().price);
+                if (!isNaN(price)) { total += price; } // နံပါတ်စစ်မှသာ ပေါင်းမည်
+            });
+            document.getElementById('totalSales').innerText = total.toLocaleString() + " THB";
+            window.currentBalance = total;
+        });
+
+        function saveBankInfo() {
+            const bank = document.getElementById('bankName').value;
+            const name = document.getElementById('bankAccName').value;
+            const no = document.getElementById('bankAccNo').value;
+            if(!name || !no) return alert("ဘဏ်အချက်အလက်များကို ပြည့်စုံစွာ ဖြည့်ပါ");
+            
+            db.collection("bank_info").doc("myStore").set({
+                bank: bank, accountName: name, accountNo: no
+            }).then(() => alert("✅ ဘဏ်အချက်အလက်များ သိမ်းဆည်းပြီးပါပြီ။"));
+        }
+
+        function requestWithdraw() {
+            const amount = window.currentBalance * 0.9; // 10% နှုတ်
+            if(amount <= 0) return alert("ထုတ်ယူရန် ငွေမရှိသေးပါ။");
+            
+            db.collection("withdrawals").add({
+                amount: amount.toFixed(0),
+                status: "pending",
+                requestTime: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => alert("🚀 " + amount.toFixed(0) + " THB ထုတ်ယူရန် Admin ထံ ပို့လိုက်ပါပြီ။"));
+        }
+    </script>
+</body>
+</html>
+
+
+

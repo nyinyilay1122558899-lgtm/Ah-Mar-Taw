@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracking & Rating</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
+        .box { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #map { height: 250px; border-radius: 10px; margin: 15px 0; border: 2px solid #2e7d32; }
+        .status-badge { background: #e8f5e9; color: #2e7d32; padding: 10px; border-radius: 5px; text-align: center; font-weight: bold; }
+        /* Rating Style */
+        #rating-area { display: none; text-align: center; background: #fffde7; padding: 20px; border-radius: 10px; margin-top: 20px; border: 1px dashed #fbc02d; }
+        .star { font-size: 30px; cursor: pointer; color: #ccc; }
+        .star.selected { color: #fbc02d; }
+        button { background: #2e7d32; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="status-badge" id="status-display">စစ်ဆေးနေဆဲ...</div>
+        <div id="map"></div>
+        <p id="eta-text" style="text-align:center;">⏳ ခန့်မှန်းချိန်: တွက်ချက်နေဆဲ...</p>
+
+        <div id="rating-area">
+            <h3>🌟 ပစ္စည်းရရှိပြီလားခင်ဗျာ?</h3>
+            <p>Rider ကို အမှတ်ပေးခဲ့ပါဦး</p>
+            <span class="star" onclick="setRate(1)">★</span>
+            <span class="star" onclick="setRate(2)">★</span>
+            <span class="star" onclick="setRate(3)">★</span>
+            <span class="star" onclick="setRate(4)">★</span>
+            <span class="star" onclick="setRate(5)">★</span>
+            <br>
+            <button onclick="submitRating()">Confirm & Submit</button>
+        </div>
+    </div>
+
+    <script>
+        const config = { apiKey: "AIzaSyD1KAKqhFVi8VTJRtoolzQKrEmXTnmZUsc", authDomain: "ah-mar-thaw.firebaseapp.com", projectId: "ah-mar-thaw", storageBucket: "ah-mar-thaw.appspot.com", messagingSenderId: "33857508316", appId: "1:33857508316:web:865529f7f9859f7c07b469" };
+        firebase.initializeApp(config);
+        const db = firebase.firestore();
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('id');
+
+        const map = L.map('map').setView([16.8409, 96.1735], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        let riderMarker = L.marker([16.8409, 96.1735]).addTo(map);
+
+        let selectedStars = 0;
+
+        if(orderId) {
+            db.collection("orders").doc(orderId).onSnapshot(doc => {
+                const data = doc.data();
+                document.getElementById('status-display').innerText = data.status;
+
+                // Status ပြီးသွားရင် Rating ပြမယ်
+                if(data.status === "ပို့ဆောင်မှု ပြီးမြောက်ပါပြီ") {
+                    document.getElementById('rating-area').style.display = "block";
+                    document.getElementById('map').style.display = "none";
+                    document.getElementById('eta-text').style.display = "none";
+                }
+
+                if(data.rider_lat) {
+                    const pos = [data.rider_lat, data.rider_lng];
+                    riderMarker.setLatLng(pos);
+                    map.panTo(pos);
+                }
+            });
+        }
+
+        function setRate(num) {
+            selectedStars = num;
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((s, idx) => {
+                s.classList.toggle('selected', idx < num);
+            });
+        }
+
+        function submitRating() {
+            if(selectedStars === 0) return alert("ကြယ်ပွင့်လေး ရွေးပေးပါဦး");
+            db.collection("orders").doc(orderId).update({
+                rating: selectedStars,
+                ratingConfirmed: true
+            }).then(() => {
+                alert("ကျေးဇူးတင်ပါတယ်ခင်ဗျာ!");
+                window.location.href = "index.html"; // ရှေ့ဆုံးပြန်သွားမယ်
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+

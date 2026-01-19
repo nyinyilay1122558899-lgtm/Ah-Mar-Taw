@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rider Wallet & Tasks</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; padding: 15px; margin: 0; }
+        .wallet-card { background: linear-gradient(135deg, #4caf50, #2e7d32); padding: 20px; border-radius: 15px; margin-bottom: 20px; text-align: center; }
+        .balance { font-size: 30px; font-weight: bold; margin: 10px 0; }
+        .task-card { background: #1e1e1e; padding: 15px; border-radius: 15px; margin-bottom: 15px; border-left: 8px solid #4caf50; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .btn-withdraw { background: white; color: #2e7d32; }
+        .btn-complete { background: #ff9800; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="wallet-card">
+        <p style="margin:0; font-size: 14px;">🛵 Rider Wallet (Net Earnings)</p>
+        <div id="riderBalance" class="balance">0 THB</div>
+        <button class="btn btn-withdraw" onclick="alert('ငွေထုတ်ရန် Admin ထံ ဆက်သွယ်ပါ')">💸 ပိုက်ဆံထုတ်မည်</button>
+    </div>
+
+    <h3>📦 လက်ရှိလုပ်ဆောင်ရမည့် Tasks</h3>
+    <div id="rider-tasks"></div>
+
+    <script>
+        const config = { apiKey: "AIzaSyD1KAKqhFVi8VTJRtoolzQKrEmXTnmZUsc", authDomain: "ah-mar-thaw.firebaseapp.com", projectId: "ah-mar-thaw", storageBucket: "ah-mar-thaw.appspot.com", messagingSenderId: "33857508316", appId: "1:33857508316:web:865529f7f9859f7c07b469" };
+        firebase.initializeApp(config);
+        const db = firebase.firestore();
+
+        // Rider ၏ ရေပိုင်ငွေကို တွက်ချက်ခြင်း (ပို့ဆောင်ခ ၄၀ ထဲမှ ၈၀% ဖြစ်သော ၃၂ ဘတ်စီ ပေါင်းပေးမည်)
+        db.collection("orders").where("status", "==", "ပို့ဆောင်မှု ပြီးမြောက်ပါပြီ").onSnapshot(snapshot => {
+            let totalEarned = 0;
+            snapshot.forEach(doc => {
+                totalEarned += 32; // ဥပမာ - တစ်ခေါက်လျှင် ၃၂ ဘတ် (Admin ၂၀% ဖြတ်ပြီးသား)
+            });
+            document.getElementById('riderBalance').innerText = totalEarned + " THB";
+        });
+
+        // Tasks များပြသခြင်း
+        db.collection("orders").where("status", "in", ["Rider လာယူရန် အသင့်ဖြစ်ပါပြီ", "Rider ပစ္စည်းပို့ဆောင်နေပါပြီ"]).onSnapshot(snapshot => {
+            const list = document.getElementById('rider-tasks');
+            list.innerHTML = "";
+            snapshot.forEach(doc => {
+                const o = doc.data();
+                const isDelivering = o.status === "Rider ပစ္စည်းပို့ဆောင်နေပါပြီ";
+                list.innerHTML += `
+                    <div class="task-card">
+                        <p>📍 <b>လိပ်စာ:</b> ${o.address}</p>
+                        <p>💰 <b>ရရှိမည့်ငွေ:</b> 32 THB</p>
+                        ${isDelivering ? `
+                            <input type="file" accept="image/*" id="file-${doc.id}" style="margin-top:10px;">
+                            <button class="btn btn-complete" onclick="completeDelivery('${doc.id}')">ပို့ဆောင်ပြီးကြောင်း ဓာတ်ပုံတင်မည်</button>
+                        ` : `
+                            <button class="btn" style="background:#4caf50; color:white;" onclick="startDelivery('${doc.id}')">ပစ္စည်းစတင်ပို့ဆောင်မည်</button>
+                        `}
+                    </div>`;
+            });
+        });
+
+        function startDelivery(id) {
+            db.collection("orders").doc(id).update({ status: "Rider ပစ္စည်းပို့ဆောင်နေပါပြီ" });
+        }
+
+        function completeDelivery(id) {
+            db.collection("orders").doc(id).update({ status: "ပို့ဆောင်မှု ပြီးမြောက်ပါပြီ" })
+              .then(() => alert("✅ အလုပ်ပြီးမြောက်ပါသည်။ ၃၂ ဘတ် Wallet ထဲ ရောက်သွားပါပြီ!"));
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
